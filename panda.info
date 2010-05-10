@@ -1,0 +1,4 @@
+; $Id$
+name = Panda
+description = Integration with Panda, the cloud-based video encoding service
+core = 6.x
