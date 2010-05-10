@@ -1,2 +1,13 @@
 <?php
 // $Id$
+
+function panda_help($path, $arg) {
+  $output = '';
+
+  switch ($path) {
+    case "admin/help#panda":
+      $output = '<p>'.  t("This module allows users to post videos through !panda, the video encoding service", array('!panda' => l("Panda", 'http://pandastream.com'))) .'</p>';
+      break;
+  }
+  return $output;
+}
