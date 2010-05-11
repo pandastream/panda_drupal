@@ -139,7 +139,7 @@ function panda_widget_process() {
   $access_key = variable_get('panda_access_key', NULL);
   $secret_key = variable_get('panda_secret_key', NULL);
   $panda = new Panda(array('cloud_id' => $cloud_id, 'access_key' => $access_key, 'secret_key' => $secret_key));
-  $signed_params = json_encode($panda->signed_params("POST", "/videos.json", array()));
+  $signed_params = json_encode(@$panda->signed_params("POST", "/videos.json", array()));
   drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.5.cat.js');
   drupal_add_css(drupal_get_path('module', 'panda') .'/panda_uploader/panda-uploader.css');
   $form['panda_video_id'] = array(
