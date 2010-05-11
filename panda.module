@@ -1,6 +1,8 @@
 <?php
 // $Id$
 
+require('panda.php');
+
 function panda_help($path, $arg) {
   $output = '';
 
@@ -133,6 +135,11 @@ function panda_elements() {
 }
 
 function panda_widget_process() {
+  $cloud_id = variable_get('panda_cloud_id', NULL);
+  $access_key = variable_get('panda_access_key', NULL);
+  $secret_key = variable_get('panda_secret_key', NULL);
+  $panda = new Panda(array('cloud_id' => $cloud_id, 'access_key' => $access_key, 'secret_key' => $secret_key));
+  $signed_params = json_encode($panda->signed_params("POST", "/videos.json", array()));
   drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.5.cat.js');
   drupal_add_css(drupal_get_path('module', 'panda') .'/panda_uploader/panda-uploader.css');
   $form['panda_video_id'] = array(
@@ -145,7 +152,7 @@ function panda_widget_process() {
         <div id="upload_progress" class="panda_upload_progress"></div>',
     '#suffix' => <<<EOF
   <script type="text/javascript"> 
-$('#edit-panda-video-id').pandaUploader({"cloud_id":"a016162968d4cc2ca008a5d2a4c1ef4c","access_key":"39514a04-0a69-11df-9401-12313b0440a2","timestamp":"2010-05-11T10:26:25+00:00","signature":"+qKINP+vEclZPG\/xNOhx1YIT9sQ\/nVNA6zAWd+G\/\/7E="}, {
+$('#edit-panda-video-id').pandaUploader($signed_params, {
       upload_button_id: 'upload_button',
       upload_filename_id: 'upload_filename',
       upload_progress_id: 'upload_progress',
