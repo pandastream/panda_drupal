@@ -1,0 +1,60 @@
+<?php
+// $Id$
+
+/**
+ * Implementation of hook_schema().
+ */
+function panda_schema() {
+  $schema['panda_videos'] = array(
+    'description' => t('Store details of videos encoded with Panda'),
+    'fields' => array(
+      'nid' => array(
+        'description' => t('ID of the node containing the video'),
+        'type' => 'int',
+      ),
+      'panda_video_id' => array(
+        'description' => t('ID of the video in Panda'),
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'panda_encoding_id' => array(
+        'description' => t('ID of the encoding in Panda'),
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'status' => array(
+        'description' => t('status of the transcoding'),
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+      'width' => array(
+        'description' => t('width of the video'),
+        'type' => 'int',
+      ),
+      'height' => array(
+        'description' => t('height of the video'),
+        'type' => 'int',
+      ),
+    ),
+    'indexes' => array(
+      'status' => array('status'),
+      'nid' => array('nid'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implementation of hook_install().
+ */
+function panda_install() {
+  drupal_install_schema('panda');
+}
+
+/**
+ * Implementation of hook_uninstall().
+ */
+function panda_uninstall() {
+  drupal_uninstall_schema('panda');
+}
