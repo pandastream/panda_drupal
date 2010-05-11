@@ -15,3 +15,101 @@ function panda_help($path, $arg) {
 function panda_perm() {
   return array('upload videos');
 }
+
+function panda_field_info() {
+  return array(
+    'panda_uploader' => array(
+      'label' => t('Video file'),
+      'description' => t('Upload a video directly to Panda for immediate encoding'),
+    ),
+  );
+}
+
+function panda_widget_info() {
+  return array(
+    'panda_uploader' => array(
+      'label' => t('JS uploader'),
+      'field types' => array('panda_uploader'),
+      'callbacks' => array(
+        'default value' => CONTENT_CALLBACK_DEFAULT,
+      ),
+    ),
+  );
+}
+
+function panda_field_settings($op, $field) {
+  return call_user_func('panda_field_settings_' . $op);
+}
+
+function panda_field($op, &$node, $field, &$items, $teaser, $page) {
+  return call_user_func('panda_field_' . $op);
+}
+
+function panda_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  $element = array(
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : NULL,
+  );
+  return $element;
+}
+
+function panda_widget_settings($op, $widget) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+      $form['panda_uploader'] = array(
+        '#value' => 'blahblah',
+        '#default_value' => isset($widget['argument']) ? $widget['argument'] : NULL,
+        '#required' => TRUE,
+      );
+      return $form;
+
+    case 'validate':
+      if (!is_numeric($widget['argument']) || intval($widget['argument']) != $widget['argument'] || $widget['argument'] <= 0) {
+        form_set_error('argument', t('Index must be a positive integer.'));
+      }
+      break;
+
+    case 'save':
+      return array('argument');
+  }
+}
+
+function panda_elements() {
+  $elements = array();
+  $elements['panda_uploader'] = array(
+    '#input' => TRUE,
+    // '#columns' => array('fid', 'list', 'data'),
+    '#process' => array('panda_widget_process'),
+    // '#value_callback' => 'filefield_widget_value',
+    // '#element_validate' => array('filefield_widget_validate'),
+  );
+  return $elements;
+}
+
+function panda_widget_process() {
+  drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.5.cat.js');
+  drupal_add_css(drupal_get_path('module', 'panda') .'/panda_uploader/panda-uploader.css');
+  $form['panda_video_id'] = array(
+    '#type' => 'hidden',
+    '#title' => t('This is the title'),
+    '#default_value' => NULL,
+    '#description' => t('This is the description'),
+    '#prefix' => '<span id="upload_button"></span> 
+        <input type="text" id="upload_filename" disabled="true" class="panda_upload_filename" /> 
+        <div id="upload_progress" class="panda_upload_progress"></div>',
+    '#suffix' => <<<EOF
+  <script type="text/javascript"> 
+$('#edit-panda-video-id').pandaUploader({"cloud_id":"a016162968d4cc2ca008a5d2a4c1ef4c","access_key":"39514a04-0a69-11df-9401-12313b0440a2","timestamp":"2010-05-11T10:26:25+00:00","signature":"+qKINP+vEclZPG\/xNOhx1YIT9sQ\/nVNA6zAWd+G\/\/7E="}, {
+      upload_button_id: 'upload_button',
+      upload_filename_id: 'upload_filename',
+      upload_progress_id: 'upload_progress',
+      api_url: 'http://api.pandastream.com/v2',
+      uploader_dir: '/panda_example_php/panda_uploader',
+  });
+  </script>
+EOF
+  );
+  
+  return $form;
+}
