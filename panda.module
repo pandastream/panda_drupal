@@ -16,6 +16,51 @@ function panda_perm() {
   return array('upload videos');
 }
 
+function panda_menu() {
+  $items = array();
+
+  $items['admin/settings/panda'] = array(
+    'title' => 'Panda',
+    'description' => 'Specify your Panda account details here',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('panda_admin'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+   );
+
+  return $items;
+}
+
+function panda_admin() {
+  $form = array();
+
+  $form['panda_access_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Access Key'),
+    '#default_value' => variable_get('panda_access_key', NULL),
+    '#description' => t("Your Panda access key, as per your account details."),
+    '#required' => TRUE,
+  );
+
+  $form['panda_secret_key'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Secret Key'),
+    '#default_value' => variable_get('panda_secret_key', NULL),
+    '#description' => t("Your Panda secret key, as per your account details."),
+    '#required' => TRUE,
+  );
+
+  $form['panda_cloud_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Cloud ID'),
+    '#default_value' => variable_get('panda_cloud_id', NULL),
+    '#description' => t("The ID of the Panda cloud you want to use."),
+    '#required' => TRUE,
+  );
+
+  return system_settings_form($form);
+}
+
 function panda_field_info() {
   return array(
     'panda_uploader' => array(
