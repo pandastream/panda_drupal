@@ -112,29 +112,6 @@ function panda_widget(&$form, &$form_state, $field, $items, $delta = 0) {
   return $element;
 }
 
-function panda_widget_settings($op, $widget) {
-  // drupal_set_message($op);
-  // switch ($op) {
-  //   case 'form':
-  //     $form = array();
-  //     $form['panda_uploader'] = array(
-  //       '#value' => 'blahblah',
-  //       '#default_value' => isset($widget['argument']) ? $widget['argument'] : NULL,
-  //       '#required' => TRUE,
-  //     );
-  //     return $form;
-  // 
-  //   case 'validate':
-  //     if (!is_numeric($widget['argument']) || intval($widget['argument']) != $widget['argument'] || $widget['argument'] <= 0) {
-  //       form_set_error('argument', t('Index must be a positive integer.'));
-  //     }
-  //     break;
-  // 
-  //   case 'save':
-  //     return array('argument');
-  // }
-}
-
 function panda_elements() {
   $elements = array();
   $elements['panda_uploader'] = array(
