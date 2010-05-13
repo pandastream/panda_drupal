@@ -93,7 +93,14 @@ function panda_widget_info() {
 }
 
 function panda_field_settings($op, $field) {
-  return call_user_func('panda_field_settings_' . $op);
+  return call_user_func('panda_field_settings_' . str_replace(' ', '_', $op), $field);
+}
+
+function panda_field_settings_database_columns($field) {
+  return array(
+    'video_id' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
+    'encoding_id' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
+  );
 }
 
 function panda_field($op, &$node, $field, &$items, $teaser, $page) {
@@ -116,7 +123,7 @@ function panda_elements() {
   $elements = array();
   $elements['panda_uploader'] = array(
     '#input' => TRUE,
-    '#columns' => array('video_id'),
+    '#columns' => array('video_id', 'encoding_id'),
     '#process' => array('panda_widget_process'),
     // '#value_callback' => 'filefield_widget_value',
     // '#element_validate' => array('filefield_widget_validate'),
