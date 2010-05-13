@@ -143,6 +143,11 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
   return $element;
 }
 
+function panda_content_is_empty($item, $field) {
+  return !! $item['video_id'];
+}
+
+
 function theme_panda_uploader($element) {
   drupal_add_css(drupal_get_path('module', 'panda') .'/panda_uploader/panda-uploader.css');
   return theme('form_element', $element, $element['#children']);
