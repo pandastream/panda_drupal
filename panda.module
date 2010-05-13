@@ -116,10 +116,6 @@ function panda_field($op, &$node, $field, &$items, $teaser, $page) {
   }
 }
 
-function panda_field_validate(&$node, $field, &$items, $teaser, $page) {
-  // drupal_set_message(print_r($node, true));
-}
-
 function panda_field_presave(&$node, $field, &$items, $teaser, $page) {
   foreach ($items as &$item) {
     $encodings = json_decode(@_panda()->get("/videos/{$item['video_id']}/encodings.json"));
