@@ -141,8 +141,6 @@ function panda_elements() {
     '#input' => TRUE,
     '#columns' => array('video_id', 'encoding_id', 'width', 'height', 'extname'),
     '#process' => array('panda_widget_process'),
-    // '#value_callback' => 'filefield_widget_value',
-    // '#element_validate' => array('filefield_widget_validate'),
   );
   return $elements;
 }
