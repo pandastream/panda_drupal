@@ -100,6 +100,9 @@ function panda_field_settings_database_columns($field) {
   return array(
     'video_id' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
     'encoding_id' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
+    'width' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
+    'height' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
+    'extname' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
   );
 }
 
@@ -123,7 +126,7 @@ function panda_elements() {
   $elements = array();
   $elements['panda_uploader'] = array(
     '#input' => TRUE,
-    '#columns' => array('video_id', 'encoding_id'),
+    '#columns' => array('video_id', 'encoding_id', 'width', 'height', 'extname'),
     '#process' => array('panda_widget_process'),
     // '#value_callback' => 'filefield_widget_value',
     // '#element_validate' => array('filefield_widget_validate'),
