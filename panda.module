@@ -93,7 +93,7 @@ function panda_widget_info() {
 }
 
 function panda_field_settings($op, $field) {
-  $delegate = 'panda_field_settings_' . $op;
+  $delegate = 'panda_field_settings_' . str_replace(' ', '_', $op);
   if (function_exists($delegate)) {
     return call_user_func($delegate, $field);
   }
