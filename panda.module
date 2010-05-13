@@ -93,7 +93,10 @@ function panda_widget_info() {
 }
 
 function panda_field_settings($op, $field) {
-  return call_user_func('panda_field_settings_' . str_replace(' ', '_', $op), $field);
+  $delegate = 'panda_field_settings_' . $op;
+  if (function_exists($delegate)) {
+    return call_user_func($delegate, $field);
+  }
 }
 
 function panda_field_settings_database_columns($field) {
@@ -107,11 +110,25 @@ function panda_field_settings_database_columns($field) {
 }
 
 function panda_field($op, &$node, $field, &$items, $teaser, $page) {
-  return call_user_func('panda_field_' . $op, $node, $field, $items, $teaser, $page);
+  $delegate = 'panda_field_' . $op;
+  if (function_exists($delegate)) {
+    return call_user_func($delegate, &$node, $field, &$items, $teaser, $page);
+  }
 }
 
-function panda_field_validate($node, $field, $items, $teaser, $page) {
+function panda_field_validate(&$node, $field, &$items, $teaser, $page) {
   // drupal_set_message(print_r($node, true));
+}
+
+function panda_field_presave(&$node, $field, &$items, $teaser, $page) {
+  foreach ($items as &$item) {
+    $encodings = json_decode(@_panda()->get("/videos/{$item['video_id']}/encodings.json"));
+    $encoding = array_shift($encodings);
+    $item['encoding_id'] = $encoding->id;
+    $item['width'] = $encoding->width;
+    $item['height'] = $encoding->height;
+    $item['extname'] = $encoding->extname;
+  }
 }
 
 function panda_widget(&$form, &$form_state, $field, $items, $delta = 0) {
@@ -172,11 +189,7 @@ EOF;
 }
 
 function _panda_widget_js($element_id) {
-  $cloud_id = variable_get('panda_cloud_id', NULL);
-  $access_key = variable_get('panda_access_key', NULL);
-  $secret_key = variable_get('panda_secret_key', NULL);
-  $panda = new Panda(array('cloud_id' => $cloud_id, 'access_key' => $access_key, 'secret_key' => $secret_key));
-  $signed_params = json_encode(@$panda->signed_params('POST', '/videos.json'));
+  $signed_params = json_encode(@_panda()->signed_params('POST', '/videos.json'));
   return <<<EOF
     <script type="text/javascript"> 
       $('#$element_id').pandaUploader($signed_params, {
@@ -188,4 +201,16 @@ function _panda_widget_js($element_id) {
       });
     </script>
 EOF;
+}
+
+function _panda() {
+  static $panda;
+  if ($panda) {
+    return $panda;
+  }
+  $cloud_id = variable_get('panda_cloud_id', NULL);
+  $access_key = variable_get('panda_access_key', NULL);
+  $secret_key = variable_get('panda_secret_key', NULL);
+  $panda = new Panda(array('cloud_id' => $cloud_id, 'access_key' => $access_key, 'secret_key' => $secret_key));
+  return $panda;
 }
