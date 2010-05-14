@@ -109,10 +109,6 @@ function panda_field_settings($op, $field) {
 function panda_field_settings_database_columns($field) {
   return array(
     'video_id' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
-    'encoding_id' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
-    'width' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
-    'height' => array('type' => 'int', 'not null' => FALSE, 'sortable' => TRUE),
-    'extname' => array('type' => 'varchar', 'length' => 255, 'not null' => FALSE, 'sortable' => TRUE),
   );
 }
 
@@ -120,17 +116,6 @@ function panda_field($op, &$node, $field, &$items, $teaser, $page) {
   $delegate = 'panda_field_' . $op;
   if (function_exists($delegate)) {
     return $delegate($node, $field, $items, $teaser, $page);
-  }
-}
-
-function panda_field_presave(&$node, $field, &$items, $teaser, $page) {
-  foreach ($items as &$item) {
-    $encodings = json_decode(@_panda()->get("/videos/{$item['video_id']}/encodings.json"));
-    $encoding = array_shift($encodings);
-    $item['encoding_id'] = $encoding->id;
-    $item['width'] = $encoding->width;
-    $item['height'] = $encoding->height;
-    $item['extname'] = $encoding->extname;
   }
 }
 
@@ -152,7 +137,7 @@ function panda_elements() {
   $elements = array();
   $elements['panda_uploader'] = array(
     '#input' => TRUE,
-    '#columns' => array('video_id', 'encoding_id', 'width', 'height', 'extname'),
+    '#columns' => array('video_id'),
     '#process' => array('panda_widget_process'),
   );
   return $elements;
@@ -161,6 +146,13 @@ function panda_elements() {
 function panda_widget_process($element, $edit, $form_state, $complete_form) {
   $field_key = 'video_id';
   drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.6.cat.js');
+
+  $prefix = '';
+  if (isset($element['#value']['video_id']) && $element['#value']['video_id']) {
+    $prefix .= theme('panda_formatter_default', array('#item' => $element['#value']));
+  }
+  $prefix = _panda_widget_additional_markup();
+
   $element[$field_key] = array(
     '#type' => 'hidden',
     '#default_value' => isset($element['#value'][$field_key]) ? $element['#value'][$field_key] : '',
@@ -171,7 +163,7 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
     '#type_name' => $element['#type_name'],
     '#delta' => $element['#delta'],
     '#columns' => $element['#columns'],
-    '#prefix' => theme('panda_formatter_default', array('#item' => $element['#value'])) . _panda_widget_additional_markup(),
+    '#prefix' => $prefix,
     '#suffix' => _panda_widget_js($element['#id'] . '-video-id'),
   );
 
@@ -189,13 +181,14 @@ function theme_panda_uploader($element) {
 }
 
 function theme_panda_formatter_default($element) {
-  $item = $element['#item'];
-  $item['url'] = _panda_get_video_url($item);
-  $item['screenshot_url'] = _panda_get_screenshot_url($item);
+  $video_id = $element['#item']['video_id'];
+  $vid = _panda_get_video_details($video_id);
+  $vid->url = _panda_get_video_url($vid);
+  $vid->screenshot_url = _panda_get_screenshot_url($vid);
   $output = <<<EOF
 <div>
-  <video id="movie" width="{$item['width']}" height="{$item['height']}" preload="none" poster="{$item['screenshot_url']}" controls>
-    <source src="{$item['url']}" type="video/mp4">
+  <video id="movie" width="{$item->width}" height="{$item->height}" preload="none" poster="{$item->screenshot_url}" controls>
+    <source src="{$item->url}" type="video/mp4">
   </video>
 </div>
 EOF;
@@ -238,15 +231,51 @@ function _panda() {
   return $panda;
 }
 
-function _panda_get_video_url($item) {
-  return _panda_get_file_base_url($item) . $item['extname'];
+function _panda_get_video_url($details) {
+  return _panda_get_file_base_url($details) . $details->extname;
 }
 
-function _panda_get_screenshot_url($item) {
-  return _panda_get_file_base_url($item) . '_4.jpg';
+function _panda_get_screenshot_url($details) {
+  return _panda_get_file_base_url($details) . '_4.jpg';
 }
 
-function _panda_get_file_base_url($item) {
+function _panda_get_file_base_url($details) {
   $s3_bucket_name = variable_get('panda_s3_bucket', NULL);
-  return "http://$s3_bucket_name.s3.amazonaws.com/{$item['encoding_id']}";
+  return "http://$s3_bucket_name.s3.amazonaws.com/{$details->encoding_id}";
+}
+
+function _panda_get_video_details($video_id) {
+  static $details;
+  if ($details) {
+    return $details;
+  }
+  
+  $details = db_fetch_object(db_query("SELECT * FROM {panda_video_encodings} WHERE video_id = '%s'", $video_id));
+  if ($details && $details->status != 'processing') {
+    return $details;
+  }
+
+  $encodings = json_decode(@_panda()->get("/videos/$video_id/encodings.json"));
+  if ( ! $encodings) {
+    return NULL;
+  }
+
+  // TODO: mechanism to choose between available profiles
+  // TODO: break gently if no profiles available
+  foreach ($encodings as $encoding) {
+    if ($encoding->extname == '.mp4') {
+      if ($details) {
+        db_query("UPDATE {panda_video_encodings} SET status= '%s'", $encoding->status);
+      }
+      else {
+        $encoding->encoding_id = $encoding->id;
+        unset($encoding->id);
+        db_query("INSERT INTO {panda_video_encodings} (video_id, encoding_id, width, height, extname, status) VALUES ('%s', '%s', %d, %d, '%s', '%s')", $encoding->video_id, $encoding->encoding_id, $encoding->width, $encoding->height, $encoding->extname, $encoding->status);
+      }
+      $details = $encoding;
+      break;
+    }
+  }
+
+  return $details;
 }
