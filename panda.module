@@ -249,7 +249,7 @@ function _panda_get_video_details($video_id) {
   if ($details) {
     return $details;
   }
-  
+
   $details = db_fetch_object(db_query("SELECT * FROM {panda_video_encodings} WHERE video_id = '%s'", $video_id));
   if ($details && $details->status != 'processing') {
     return $details;
@@ -265,7 +265,7 @@ function _panda_get_video_details($video_id) {
   foreach ($encodings as $encoding) {
     if ($encoding->extname == '.mp4') {
       if ($details) {
-        db_query("UPDATE {panda_video_encodings} SET status= '%s'", $encoding->status);
+        db_query("UPDATE {panda_video_encodings} SET status = '%s' WHERE video_id = '%s'", $encoding->status, $encoding->video_id);
       }
       else {
         $encoding->encoding_id = $encoding->id;
