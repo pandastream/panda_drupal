@@ -95,7 +95,7 @@ function panda_widget_info() {
 function panda_field_settings($op, $field) {
   $delegate = 'panda_field_settings_' . str_replace(' ', '_', $op);
   if (function_exists($delegate)) {
-    return call_user_func($delegate, $field);
+    return $delegate($field);
   }
 }
 
@@ -112,7 +112,7 @@ function panda_field_settings_database_columns($field) {
 function panda_field($op, &$node, $field, &$items, $teaser, $page) {
   $delegate = 'panda_field_' . $op;
   if (function_exists($delegate)) {
-    return call_user_func($delegate, &$node, $field, &$items, $teaser, $page);
+    return $delegate($node, $field, $items, $teaser, $page);
   }
 }
 
