@@ -67,6 +67,14 @@ function panda_admin() {
     '#required' => TRUE,
   );
 
+  $form['panda_s3_bucket'] = array(
+    '#type' => 'textfield',
+    '#title' => t('S3 Bucket'),
+    '#default_value' => variable_get('panda_s3_bucket', NULL),
+    '#description' => t("The name of the S3 bucket where Panda has been configured to store your videos."),
+    '#required' => TRUE,
+  );
+
   return system_settings_form($form);
 }
 
