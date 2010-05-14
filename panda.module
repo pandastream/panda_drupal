@@ -151,7 +151,7 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
   if (isset($element['#value']['video_id']) && $element['#value']['video_id']) {
     $prefix .= theme('panda_formatter_default', array('#item' => $element['#value']));
   }
-  $prefix = _panda_widget_additional_markup();
+  $prefix .= _panda_widget_additional_markup();
 
   $element[$field_key] = array(
     '#type' => 'hidden',
