@@ -160,7 +160,7 @@ function panda_elements() {
 
 function panda_widget_process($element, $edit, $form_state, $complete_form) {
   $field_key = 'video_id';
-  drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.5.cat.js');
+  drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.6.cat.js');
   $element[$field_key] = array(
     '#type' => 'hidden',
     '#default_value' => isset($element['#value'][$field_key]) ? $element['#value'][$field_key] : '',
@@ -171,7 +171,7 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
     '#type_name' => $element['#type_name'],
     '#delta' => $element['#delta'],
     '#columns' => $element['#columns'],
-    '#prefix' => _panda_widget_additional_markup(),
+    '#prefix' => theme('panda_formatter_default', array('#item' => $element['#value'])) . _panda_widget_additional_markup(),
     '#suffix' => _panda_widget_js($element['#id'] . '-video-id'),
   );
 
@@ -193,9 +193,11 @@ function theme_panda_formatter_default($element) {
   $item['url'] = _panda_get_video_url($item);
   $item['screenshot_url'] = _panda_get_screenshot_url($item);
   $output = <<<EOF
-<video id="movie" width="{$item['width']}" height="{$item['height']}" preload="none" poster="{$item['screenshot_url']}" controls>
-  <source src="{$item['url']}" type="video/mp4">
-</video>
+<div>
+  <video id="movie" width="{$item['width']}" height="{$item['height']}" preload="none" poster="{$item['screenshot_url']}" controls>
+    <source src="{$item['url']}" type="video/mp4">
+  </video>
+</div>
 EOF;
   return $output;
 }
@@ -218,6 +220,7 @@ function _panda_widget_js($element_id) {
       upload_progress_id: 'upload_progress',
       api_url: 'http://api.pandastream.com/v2',
       uploader_dir: '/panda_example_php/panda_uploader',
+      disable_submit_button: false
       });
     </script>
 EOF;

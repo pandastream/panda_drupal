@@ -1010,8 +1010,10 @@ SWFUpload.Console.writeLine = function (message) {
 						var eventName = v.replace(/_handler$/, '').replace(/_([a-z])/g, function(){ return arguments[1].toUpperCase(); });
 						settings[v] = function() {
               // var event = $.Event(eventName);
-							$magicUploadControl.trigger(eventName, $.makeArray(arguments));
-							return true;
+              // $magicUploadControl.trigger(event, $.makeArray(arguments));
+              // return !event.isDefaultPrevented();
+              $magicUploadControl.trigger(eventName, $.makeArray(arguments));
+              return true;
 						};
 					});
 					$(this).data('__swfu', new SWFUpload(settings));
@@ -1044,7 +1046,7 @@ SWFUpload.Console.writeLine = function (message) {
 		}
 	};
 	
-})(jQuery);// version: 0.5
+})(jQuery);// version: 0.6
 // name: panda_uploader
 
 (function(){
@@ -1136,12 +1138,10 @@ jQuery.fn.pandaUploader = function(signed_params, options, swfupload_options) {
     return uploader;
     
     function disableSubmitButton(value){
-      if(options.disable_submit_button) {
-        var form = $video_field.parents("form").eq(0);
-        form.find("input[type=submit]").each(function() {
-         $(this).attr("disabled", value); 
-        })        
-      }
+      var form = $video_field.parents("form").eq(0);
+      form.find("input[type=submit]").each(function() {
+       $(this).attr("disabled", value);
+      })
     }
     
     //
@@ -1149,9 +1149,11 @@ jQuery.fn.pandaUploader = function(signed_params, options, swfupload_options) {
     //
     
     function onLoad() {
-        var form = $video_field.parents("form").eq(0);
-        form.submit(onSubmit);
-        disableSubmitButton(true)
+      var form = $video_field.parents("form").eq(0);
+      form.submit(onSubmit);
+      if(options.disable_submit_button) {
+        disableSubmitButton(true);
+      }
     }
 
     function onFileQueued(event, file) {
@@ -1166,8 +1168,10 @@ jQuery.fn.pandaUploader = function(signed_params, options, swfupload_options) {
     }
 
     function onSubmit(event) {
+      if (num_files > 0) {
         uploader.swfupload('startUpload');
         return false;
+      }
     }
 
     function onStart(event, file) {
@@ -1175,10 +1179,10 @@ jQuery.fn.pandaUploader = function(signed_params, options, swfupload_options) {
       uploader.swfupload('setButtonDisabled', true)
       options.progress_handler.reset();
       
-        disableSubmitButton(true)
-        if (options.progress_handler) {
-            options.progress_handler.start(file);
-        }
+      disableSubmitButton(true)
+      if (options.progress_handler) {
+          options.progress_handler.start(file);
+      }
     }
 
     function onCancel(event) {
