@@ -165,7 +165,7 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
 }
 
 function panda_content_is_empty($item, $field) {
-  return !! $item['video_id'];
+  return ! $item['video_id'];
 }
 
 
