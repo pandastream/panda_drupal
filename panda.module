@@ -189,7 +189,15 @@ function theme_panda_uploader($element) {
 }
 
 function theme_panda_formatter_default($element) {
-  return 'THIS IS DA STUFF!!!';
+  $item = $element['#item'];
+  $item['url'] = _panda_get_video_url($item);
+  $item['screenshot_url'] = _panda_get_screenshot_url($item);
+  $output = <<<EOF
+<video id="movie" width="{$item['width']}" height="{$item['height']}" preload="none" poster="{$item['screenshot_url']}" controls>
+  <source src="{$item['url']}" type="video/mp4">
+</video>
+EOF;
+  return $output;
 }
 
 function _panda_widget_additional_markup() {
@@ -225,4 +233,17 @@ function _panda() {
   $secret_key = variable_get('panda_secret_key', NULL);
   $panda = new Panda(array('cloud_id' => $cloud_id, 'access_key' => $access_key, 'secret_key' => $secret_key));
   return $panda;
+}
+
+function _panda_get_video_url($item) {
+  return _panda_get_file_base_url($item) . $item['extname'];
+}
+
+function _panda_get_screenshot_url($item) {
+  return _panda_get_file_base_url($item) . '_4.jpg';
+}
+
+function _panda_get_file_base_url($item) {
+  $s3_bucket_name = variable_get('panda_s3_bucket', NULL);
+  return "http://$s3_bucket_name.s3.amazonaws.com/{$item['encoding_id']}";
 }
