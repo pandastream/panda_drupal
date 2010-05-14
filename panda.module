@@ -146,9 +146,11 @@ function panda_elements() {
 }
 
 function panda_widget_process($element, $edit, $form_state, $complete_form) {
+  $field_key = 'video_id';
   drupal_add_js(drupal_get_path('module', 'panda') .'/panda_uploader/jquery.panda-uploader-0.5.cat.js');
-  $element['video_id'] = array(
+  $element[$field_key] = array(
     '#type' => 'hidden',
+    '#default_value' => isset($element['#value'][$field_key]) ? $element['#value'][$field_key] : '',
     '#title' => $element['#title'],
     '#description' => $element['#description'],
     '#required' => $element['#required'],
@@ -156,7 +158,6 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
     '#type_name' => $element['#type_name'],
     '#delta' => $element['#delta'],
     '#columns' => $element['#columns'],
-    '#default_value' => NULL,
     '#prefix' => _panda_widget_additional_markup(),
     '#suffix' => _panda_widget_js($element['#id'] . '-video-id'),
   );
