@@ -287,10 +287,3 @@ function _panda_store_video_details($encoding) {
   }
   return $encoding;
 }
-
-function __($msg) {
-  if ( ! is_string($msg)) {
-    $msg = '<pre>' . print_r($msg, true) . '</pre>';
-  }
-  drupal_set_message($msg);
-}
