@@ -151,7 +151,7 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
   if (isset($element['#value']['video_id']) && $element['#value']['video_id']) {
     $prefix .= theme('panda_formatter_default', array('#item' => $element['#value']));
   }
-  $prefix .= _panda_widget_additional_markup();
+  $prefix .= _panda_widget_additional_markup($element['#id']);
 
   $element[$field_key] = array(
     '#type' => 'hidden',
@@ -164,7 +164,7 @@ function panda_widget_process($element, $edit, $form_state, $complete_form) {
     '#delta' => $element['#delta'],
     '#columns' => $element['#columns'],
     '#prefix' => $prefix,
-    '#suffix' => _panda_widget_js($element['#id'] . '-video-id'),
+    '#suffix' => _panda_widget_js($element['#id']),
   );
 
   return $element;
@@ -202,11 +202,11 @@ EOF;
   return $output;
 }
 
-function _panda_widget_additional_markup() {
+function _panda_widget_additional_markup($element_id) {
   return <<<EOF
-    <span id="upload_button"></span> 
-    <input type="text" id="upload_filename" disabled="true" class="panda_upload_filename" /> 
-    <div id="upload_progress" class="panda_upload_progress"></div>
+    <span id="{$element_id}-upload_button"></span>
+    <input type="text" id="{$element_id}-upload_filename" disabled="true" class="panda_upload_filename" />
+    <div id="{$element_id}-upload_progress" class="panda_upload_progress"></div>
 EOF;
 }
 
@@ -214,10 +214,10 @@ function _panda_widget_js($element_id) {
   $signed_params = json_encode(@_panda()->signed_params('POST', '/videos.json'));
   return <<<EOF
     <script type="text/javascript"> 
-      $('#$element_id').pandaUploader($signed_params, {
-      upload_button_id: 'upload_button',
-      upload_filename_id: 'upload_filename',
-      upload_progress_id: 'upload_progress',
+      $('#{$element_id}-video-id').pandaUploader($signed_params, {
+      upload_button_id: '{$element_id}-upload_button',
+      upload_filename_id: '{$element_id}-upload_filename',
+      upload_progress_id: '{$element_id}-upload_progress',
       api_url: 'http://api.pandastream.com/v2',
       uploader_dir: '/panda_example_php/panda_uploader',
       disable_submit_button: false
