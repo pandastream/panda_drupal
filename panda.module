@@ -185,13 +185,20 @@ function theme_panda_formatter_default($element) {
   $vid = _panda_get_video_details($video_id);
   $vid->url = _panda_get_video_url($vid);
   $vid->screenshot_url = _panda_get_screenshot_url($vid);
-  $output = <<<EOF
+  if ($vid->status == 'success') {
+    $output = <<<EOF
 <div>
   <video id="movie" width="{$vid->width}" height="{$vid->height}" preload="none" poster="{$vid->screenshot_url}" controls>
     <source src="{$vid->url}" type="video/mp4">
   </video>
 </div>
 EOF;
+  }
+  else {
+    $output = <<<EOF
+<p>This video is currently being processed. Please wait until completed.</p>
+EOF;
+  }
   return $output;
 }
 
