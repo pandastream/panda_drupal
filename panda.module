@@ -264,18 +264,26 @@ function _panda_get_video_details($video_id) {
   // TODO: break gently if no profiles available
   foreach ($encodings as $encoding) {
     if ($encoding->extname == '.mp4') {
-      if ($details) {
-        db_query("UPDATE {panda_video_encodings} SET status = '%s' WHERE video_id = '%s'", $encoding->status, $encoding->video_id);
-      }
-      else {
-        $encoding->encoding_id = $encoding->id;
-        unset($encoding->id);
-        db_query("INSERT INTO {panda_video_encodings} (video_id, encoding_id, width, height, extname, status) VALUES ('%s', '%s', %d, %d, '%s', '%s')", $encoding->video_id, $encoding->encoding_id, $encoding->width, $encoding->height, $encoding->extname, $encoding->status);
-      }
-      $details = $encoding;
-      break;
+      $encoding->encoding_id = $encoding->id;
+      unset($encoding->id);
+      $details = _panda_store_video_details($encoding);
     }
   }
 
   return $details;
+}
+
+function _panda_store_video_details($encoding) {
+  db_query("UPDATE {panda_video_encodings} SET status = '%s' WHERE video_id = '%s'", $encoding->status, $encoding->video_id);
+  if ( ! db_affected_rows()) {
+    db_query("INSERT INTO {panda_video_encodings} (video_id, encoding_id, width, height, extname, status) VALUES ('%s', '%s', %d, %d, '%s', '%s')", $encoding->video_id, $encoding->encoding_id, $encoding->width, $encoding->height, $encoding->extname, $encoding->status);
+  }
+  return $encoding;
+}
+
+function __($msg) {
+  if ( ! is_string($msg)) {
+    $msg = '<pre>' . print_r($msg, true) . '</pre>';
+  }
+  drupal_set_message($msg);
 }
