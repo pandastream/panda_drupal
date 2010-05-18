@@ -213,16 +213,18 @@ EOF;
 function _panda_widget_js($element_id) {
   $signed_params = json_encode(@_panda()->signed_params('POST', '/videos.json'));
   return <<<EOF
-    <script type="text/javascript"> 
-      $('#{$element_id}-video-id').pandaUploader($signed_params, {
-      upload_button_id: '{$element_id}-upload_button',
-      upload_filename_id: '{$element_id}-upload_filename',
-      upload_progress_id: '{$element_id}-upload_progress',
-      api_url: 'http://api.pandastream.com/v2',
-      uploader_dir: '/panda_example_php/panda_uploader',
-      disable_submit_button: false
-      });
-    </script>
+<script type="text/javascript">
+if ($('#{$element_id}-video-id').length > 0) {
+  $('#{$element_id}-video-id').pandaUploader($signed_params, {
+    upload_button_id: '{$element_id}-upload_button',
+    upload_filename_id: '{$element_id}-upload_filename',
+    upload_progress_id: '{$element_id}-upload_progress',
+    api_url: 'http://api.pandastream.com/v2',
+    uploader_dir: '/panda_example_php/panda_uploader',
+    disable_submit_button: false
+  });
+}
+</script>
 EOF;
 }
 
