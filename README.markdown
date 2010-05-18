@@ -43,8 +43,8 @@ Once this is added, you will see your new content type listed alongside others i
 
 Now you will be able to add new video content at "Create Content" on the navigation menu.
 
-How to use your favourite custom video player
-=============================================
+How to use your favourite video player
+======================================
 
 By default, this module uses HTML5 to render the video player. You might want to use a different player instead, such as one of the many popular Flash players there are available.
 
